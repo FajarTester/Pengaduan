@@ -1,6 +1,12 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 
+if (file_exists($autoload)) {
+    require_once $autoload;
+} else {
+    die("Vendor autoload tidak ditemukan. Pastikan composer install berhasil di folder frontend.");
+}
+
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
