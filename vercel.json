@@ -1,12 +1,39 @@
 {
     "version": 2,
     "builds": [
-        { "src": "backend/main.go", "use": "@vercel/go" },
-        { "src": "frontend/**/*.php", "use": "vercel-php@0.6.0" }
+        {
+            "src": "backend/main.go",
+            "use": "@vercel/go"
+        },
+        {
+            "src": "frontend/**/*.php",
+            "use": "now-php"
+        }
     ],
     "routes": [
-        { "src": "/api/(.*)", "dest": "backend/main.go" },
-        { "src": "/(.*).php", "dest": "frontend/$1.php" },
-        { "src": "/(.*)", "dest": "frontend/index.php" }
+        {
+            "src": "/api/(.*)",
+            "dest": "backend/main.go"
+        },
+        {
+            "src": "/plugins/(.*)",
+            "dest": "frontend/plugins/$1"
+        },
+        {
+            "src": "/js/(.*)",
+            "dest": "frontend/views/js/$1"
+        },
+        {
+            "src": "/style/(.*)",
+            "dest": "frontend/views/style/$1"
+        },
+        {
+            "src": "/(.*).php",
+            "dest": "frontend/$1.php"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "frontend/index.php"
+        }
     ]
 }
