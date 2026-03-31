@@ -13,6 +13,19 @@ class AuthController
             if ($role === 'siswa') {
                 // Siswa Login
                 $nis = $_POST['nis'];
+
+                if (strlen($nis) !== 10) {
+                    $error = "NIS harus 10 karakter";
+                    require_once __DIR__ . '/../views/LoginSiswa.php';
+                    return;
+                }
+
+                if (strlen($nis) === 0) {
+                    $error = "NIS tidak boleh kosong";
+                    require_once __DIR__ . '/../views/LoginSiswa.php';
+                    return;
+                }
+                
                 $siswa = Siswa::getByNis($nis);
                 if ($siswa) {
                     $_SESSION['user'] = $siswa;
