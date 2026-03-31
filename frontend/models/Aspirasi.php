@@ -30,6 +30,8 @@ class Aspirasi
             'id_kategori' => $id_kategori,
             'feedback' => $feedback
         ];
+
+        log("create aspirasi: $status, $id_kategori, $feedback");
         $status = trim($status);
         $payload['status'] = $status;
         $id_kategori = intval($id_kategori);

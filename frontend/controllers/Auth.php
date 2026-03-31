@@ -25,6 +25,19 @@ class AuthController
                 // Admin Login
                 $username = $_POST['username'];
                 $password = $_POST['password'];
+
+                if (strlen($username) === 0 || strlen($password) === 0) {
+                    $error = "Username atau password tidak boleh kosong";
+                    require_once __DIR__ . '/../views/Login.php';
+                    return;
+                }
+
+                if (strlen($password) < 8) {
+                    $error = "Password minimal 8 karakter";
+                    require_once __DIR__ . '/../views/Login.php';
+                    return;
+                }
+
                 $admin = Auth::login($username, $password);
                 if ($admin) {
                     $_SESSION['admin'] = $admin;
@@ -53,6 +66,12 @@ class AuthController
             $existing = Siswa::getByNis($nis);
             if ($existing) {
                 $error = "NIS sudah terdaftar";
+                require_once __DIR__ . '/../views/RegisterSiswa.php';
+                return;
+            }
+
+            if (strlen($nis) !== 10) {
+                $error = "NIS harus 10 karakter";
                 require_once __DIR__ . '/../views/RegisterSiswa.php';
                 return;
             }
@@ -91,6 +110,12 @@ class AuthController
                 return;
             }
 
+            if (strlen($password) < 8) {
+                $error = "Password minimal 8 karakter";
+                require_once __DIR__ . '/../views/Register.php';
+                return;
+            }
+
             // Check if username already exists
             $admin = Auth::login($username, $password);
             if ($admin) {
@@ -124,6 +149,8 @@ class AuthController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = $_POST['username'];
             $password = $_POST['password'];
+
+
 
             Auth::register($username, $password);
             header('Location: index.php?page=login&role=admin');

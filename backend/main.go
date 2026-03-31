@@ -1,4 +1,4 @@
-package handler // Diubah untuk keperluan Vercel Serverless
+package handler
 
 import (
 	"fmt"
@@ -13,9 +13,8 @@ import (
 	"pengaduan/handlers"
 )
 
-// init tetap berjalan otomatis saat function dipanggil
 func init() {
-	_ = godotenv.Load() // Abaikan error jika .env tidak ada di Vercel
+	_ = godotenv.Load()
 
 	err := database.Init()
 	if err != nil {
