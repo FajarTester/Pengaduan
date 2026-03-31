@@ -778,19 +778,17 @@
         }
 
         /* ─── MODAL ─── */
-        .modal-backdrop {
+        .custom-modal-backdrop {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(15, 12, 33, 0.8);
+            background: rgba(0, 0, 0, 0.75);
             z-index: 1000;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(8px);
-            padding: 20px;
         }
 
-        .modal-backdrop.show {
+        .custom-modal-backdrop.show {
             display: flex;
         }
 
@@ -1425,7 +1423,7 @@
     </div>
 
     <!-- MODAL -->
-    <div class="modal-backdrop" id="reviewModal">
+    <div class="custom-modal-backdrop" id="reviewModal">
         <div class="modal-box">
             <div class="modal-header">
                 <div class="modal-header-id">Review Aspirasi</div>
