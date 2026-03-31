@@ -7,16 +7,15 @@
         },
         {
             "src": "frontend/index.php",
-            "use": "vercel-php@0.6.0",
-            "config": { "maxDuration": 60 }
+            "use": "vercel-php@0.9.0"
+        },
+        {
+            "src": "frontend/plugins/api.php",
+            "use": "vercel-php@0.9.0"
         }
     ],
     "routes": [
         { "src": "/api/(.*)", "dest": "backend/main.go" },
-        { "src": "/plugins/(.*)", "dest": "frontend/plugins/$1" },
-        { "src": "/js/(.*)", "dest": "frontend/views/js/$1" },
-        { "src": "/style/(.*)", "dest": "frontend/views/style/$1" },
-        { "src": "/(.*).php", "dest": "frontend/$1.php" },
         { "src": "/(.*)", "dest": "frontend/index.php" }
     ]
 }
