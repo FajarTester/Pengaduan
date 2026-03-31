@@ -1,0 +1,41 @@
+{
+    "version": 2,
+    "functions": {
+        "backend/main.go": {
+            "runtime": "vercel-go@latest"
+        },
+        "frontend/**/*.php": {
+            "runtime": "vercel-php@0.6.0"
+        }
+    },
+    "routes": [
+        {
+            "src": "/api/(.*)",
+            "dest": "backend/main.go"
+        },
+        {
+            "src": "/plugins/(.*)",
+            "dest": "frontend/plugins/$1"
+        },
+        {
+            "src": "/js/(.*)",
+            "dest": "frontend/views/js/$1"
+        },
+        {
+            "src": "/style/(.*)",
+            "dest": "frontend/views/style/$1"
+        },
+        {
+            "src": "/views/(.*).php",
+            "dest": "frontend/views/$1.php"
+        },
+        {
+            "src": "/(.*).php",
+            "dest": "frontend/$1.php"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "frontend/index.php"
+        }
+    ]
+}
