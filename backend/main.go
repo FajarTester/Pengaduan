@@ -1,11 +1,10 @@
-package main
+package handler // Diubah untuk keperluan Vercel Serverless
 
 import (
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -14,21 +13,14 @@ import (
 	"pengaduan/handlers"
 )
 
+// init tetap berjalan otomatis saat function dipanggil
 func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("No .env file found, using environment variables")
-	}
+	_ = godotenv.Load() // Abaikan error jika .env tidak ada di Vercel
 
-	err = database.Init()
+	err := database.Init()
 	if err != nil {
-		log.Fatal("Database connection failed:", err)
+		log.Println("Database connection failed:", err)
 	}
-}
-
-func Handler(w http.ResponseWriter, r *http.Request) {
-	router := setupRouter()
-	router.ServeHTTP(w, r)
 }
 
 func loggingMiddleware(next http.Handler) http.Handler {
@@ -38,31 +30,38 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// Handler adalah fungsi utama yang dipanggil oleh Vercel
+func Handler(w http.ResponseWriter, r *http.Request) {
+	router := setupRouter()
+	router.ServeHTTP(w, r)
+}
+
+// setupRouter memisahkan logika routing agar rapi
 func setupRouter() *mux.Router {
 	router := mux.NewRouter()
 	router.Use(mux.CORSMethodMiddleware(router))
 	router.Use(loggingMiddleware)
 
-	// ! ---- Auth endpoints
+	// Auth endpoints
 	router.HandleFunc("/api/auth/login", handlers.Login).Methods("POST")
 	router.HandleFunc("/api/auth/register", handlers.Register).Methods("POST")
 
-	// ! ---- Siswa endpoints
+	// Siswa endpoints
 	router.HandleFunc("/api/siswa/{nis}", handlers.GetSiswaByNIS).Methods("GET")
 	router.HandleFunc("/api/siswa", handlers.GetAllSiswa).Methods("GET")
 	router.HandleFunc("/api/siswa", handlers.CreateSiswa).Methods("POST")
 
-	// !Kategori endpoints
+	// Kategori endpoints
 	router.HandleFunc("/api/kategori", handlers.GetAllKategori).Methods("GET")
 	router.HandleFunc("/api/kategori", handlers.CreateKategori).Methods("POST")
 
-	// ! ---- Aspirasi endpoints
+	// Aspirasi endpoints
 	router.HandleFunc("/api/aspirasi", handlers.GetAllAspirasi).Methods("GET")
 	router.HandleFunc("/api/aspirasi/{id}", handlers.GetAspirationByID).Methods("GET")
 	router.HandleFunc("/api/aspirasi", handlers.CreateAspirasi).Methods("POST")
 	router.HandleFunc("/api/aspirasi/{id}", handlers.UpdateAspirasi).Methods("PUT")
 
-	// ! ---- Pengaduan (InputAspirasi) endpoints
+	// Pengaduan endpoints
 	router.HandleFunc("/api/input_aspirasi/siswa/{nis}", handlers.GetInputAspirasiByNIS).Methods("GET")
 	router.HandleFunc("/api/input_aspirasi", handlers.GetAllInputAspirasi).Methods("GET")
 	router.HandleFunc("/api/input_aspirasi", handlers.CreateInputAspirasi).Methods("POST")
@@ -73,25 +72,14 @@ func setupRouter() *mux.Router {
 	return router
 }
 
+// main tetap ada agar kamu bisa menjalankan 'go run main.go' secara lokal
 func main() {
-
-	router := mux.NewRouter()
-	router.Use(mux.CORSMethodMiddleware(router))
-	router.Use(loggingMiddleware)
-
+	router := setupRouter()
 	port := os.Getenv("API_PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	server := &http.Server{
-		Addr:         ":" + port,
-		Handler:      router,
-		ErrorLog:     log.New(os.Stderr, "HTTP: ", log.LstdFlags), // Log error server
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-	}
-
 	fmt.Printf("API Server running on port %s\n", port)
-	log.Fatal(server.ListenAndServe())
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }
