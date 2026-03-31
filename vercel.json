@@ -1,11 +1,11 @@
 {
     "version": 2,
     "functions": {
-        "backend/main.go": {
+        "api/*.go": {
             "runtime": "vercel-go@latest"
         },
         "frontend/**/*.php": {
-            "runtime": "vercel-php@0.6.0"
+            "runtime": "vercel-php@latest"
         }
     },
     "routes": [
@@ -24,10 +24,6 @@
         {
             "src": "/style/(.*)",
             "dest": "frontend/views/style/$1"
-        },
-        {
-            "src": "/views/(.*).php",
-            "dest": "frontend/views/$1.php"
         },
         {
             "src": "/(.*).php",
