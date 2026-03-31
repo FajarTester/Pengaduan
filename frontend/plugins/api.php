@@ -4,16 +4,25 @@ $autoloadPath = dirname(__DIR__) . '/vendor/autoload.php';
 if (file_exists($autoloadPath)) {
     require_once $autoloadPath;
 } else {
-    // Jangan langsung die, kita berikan pesan yang jelas untuk debug
-    echo "Debug Path: " . $autoloadPath . "<br>";
-    die("Vendor autoload tidak ditemukan. Jika ini di Vercel, pastikan folder vendor sudah di-upload atau composer install berhasil.");
+    die("Vendor autoload tidak ditemukan.");
 }
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
-$dotenv->load();
+try {
+    if (file_exists(dirname(__DIR__) . '/.env')) {
+        $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+        $dotenv->load();
+    }
+} catch (Exception $e) {
 
-$api_base_url = $_ENV['API_BASE_URL'];
+}
 
+
+$api_base_url = getenv('API_BASE_URL') ?: ($_ENV['API_BASE_URL'] ?? '');
+
+
+if (!$api_base_url) {
+    $api_base_url = "https://" . $_SERVER['HTTP_HOST'];
+}
 function api_request($method, $endpoint, $payload = null)
 {
     global $api_base_url;
