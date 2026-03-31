@@ -1,10 +1,12 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
+$autoloadPath = dirname(__DIR__) . '/vendor/autoload.php';
 
-if (file_exists($autoload)) {
-    require_once $autoload;
+if (file_exists($autoloadPath)) {
+    require_once $autoloadPath;
 } else {
-    die("Vendor autoload tidak ditemukan. Pastikan composer install berhasil di folder frontend.");
+    // Jangan langsung die, kita berikan pesan yang jelas untuk debug
+    echo "Debug Path: " . $autoloadPath . "<br>";
+    die("Vendor autoload tidak ditemukan. Jika ini di Vercel, pastikan folder vendor sudah di-upload atau composer install berhasil.");
 }
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
