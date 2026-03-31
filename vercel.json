@@ -7,7 +7,7 @@
         },
         {
             "src": "frontend/**/*.php",
-            "use": "now-php"
+            "use": "vercel-php"
         }
     ],
     "routes": [
