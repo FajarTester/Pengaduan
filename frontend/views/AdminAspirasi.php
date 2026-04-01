@@ -1,3 +1,13 @@
+<?
+
+session_start();
+
+if (!isset($_SESSION['admin'])) {
+    header('Location: index.php?page=login');
+    exit();
+}
+
+?>
 <!DOCTYPE html>
 <html lang="id">
 
@@ -1245,7 +1255,9 @@
                 <div class="nav-right">
                     <div class="admin-chip">
                         <div class="admin-avatar"><i class="bi bi-shield-fill"></i></div>
-                        <span class="admin-name"><?php echo htmlspecialchars($_SESSION['admin']['username']); ?></span>
+                        <span class="admin-name">
+                            <?php echo htmlspecialchars($_SESSION['admin']['username'] ?? 'Guest'); ?>
+                        </span>
                     </div>
                     <a href="index.php?page=logout" class="btn-logout">
                         <i class="bi bi-box-arrow-right"></i> Keluar
