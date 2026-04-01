@@ -1,13 +1,4 @@
-<?
 
-session_start();
-
-if (!isset($_SESSION['admin'])) {
-    header('Location: index.php?page=login');
-    exit();
-}
-
-?>
 <!DOCTYPE html>
 <html lang="id">
 
