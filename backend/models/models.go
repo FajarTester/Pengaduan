@@ -2,6 +2,8 @@ package models
 
 // Admin model
 type Admin struct {
+	ID       int    `json:"id"`
+	Email    string `json:"email"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
@@ -12,8 +14,11 @@ type AdminResponse struct {
 
 // Siswa model
 type Siswa struct {
-	NIS   int64  `json:"nis"`
-	Kelas string `json:"kelas"`
+	NIS      string `json:"nis"`
+	Kelas    string `json:"kelas"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 // Kategori model
@@ -34,7 +39,7 @@ type Aspirasi struct {
 // InputAspirasi model
 type InputAspirasi struct {
 	IDPelaporan int    `json:"id_pelaporan"`
-	NIS         int64  `json:"nis"`
+	NIS         string `json:"nis"`
 	IDKategori  int    `json:"id_kategori"`
 	Lokasi      string `json:"lokasi"`
 	Ket         string `json:"ket"`

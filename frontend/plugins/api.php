@@ -28,6 +28,11 @@ function api_request($method, $endpoint, $payload = null)
     global $api_base_url;
 
     $url = $api_base_url . '/api/' . $endpoint;
+
+    if ($method === 'GET' && $payload) {
+        $url .= '?' . http_build_query($payload);
+    }
+
     $ch = curl_init($url);
 
     $headers = [
@@ -41,7 +46,8 @@ function api_request($method, $endpoint, $payload = null)
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
-    if ($payload) {
+    // ✅ Hanya POST/PUT/PATCH yang pakai body
+    if ($payload && in_array($method, ['POST', 'PUT', 'PATCH'])) {
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
     }
 
@@ -56,5 +62,5 @@ function api_request($method, $endpoint, $payload = null)
     }
 
     return json_decode($response, true);
-}
+}   
 ?>

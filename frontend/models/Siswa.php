@@ -3,6 +3,20 @@ require_once __DIR__ . '/../plugins/api.php';
 
 class Siswa
 {
+    public static function getByNisAndEmailAndPass($nis, $email, $password)
+    {
+        $payload = [
+            'nis' => $nis,
+            'email' => $email,
+            'password' => $password
+        ];
+        $response = api_request('GET', 'siswa/one', $payload);
+
+        if (isset($response['success']) && $response['success']) {
+            return $response['data'];
+        }
+        return null;
+    }
     public static function getByNis($nis)
     {
         $response = api_request('GET', 'siswa/' . $nis);
@@ -13,15 +27,16 @@ class Siswa
         return null;
     }
 
-    public static function create($nis, $kelas)
+    public static function create($nis, $kelas, $username, $password, $email)
     {
         $payload = [
-            'nis' => $nis,
-            'kelas' => $kelas
+            'nis' => $nis,       
+            'kelas' => $kelas,
+            'username' => $username,
+            'password' => $password,
+            'email' => $email
         ];
 
-        $nis = intval($nis);
-        $payload['nis'] = $nis;
         $response = api_request('POST', 'siswa', $payload);
 
         if (isset($response['success']) && $response['success']) {

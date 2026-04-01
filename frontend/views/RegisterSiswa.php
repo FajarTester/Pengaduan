@@ -136,7 +136,7 @@
         <form method="POST" action="index.php?page=register_siswa">
             <div class="form-group">
                 <label for="nis" class="form-label">Nomor Induk Siswa (NIS) <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="nis" name="nis" placeholder="Masukkan NIS Anda" required>
+                <input type="text" class="form-control" id="nis" name="nis" placeholder="Masukkan NIS Anda" required>
                 <small class="form-text text-muted">Contoh: 1234567890</small>
             </div>
 
@@ -154,6 +154,26 @@
                     <option value="12B">12B</option>
                     <option value="12C">12C</option>
                 </select>
+            </div>
+
+            <div class="form-group">
+                <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Masukkan username"
+                    required>
+                <small class="form-text text-muted">Contoh: Nomeri Uno</small>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Masukkan email" required>
+                <small class="form-text text-muted">Contoh: example@example.com</small>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="password" name="password"
+                    placeholder="Masukkan password" required>
+                <small class="form-text text-muted">Contoh: NumeriUno2332</small>
             </div>
 
             <button type="submit" class="btn btn-register">Daftar Akun</button>

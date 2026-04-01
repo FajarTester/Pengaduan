@@ -11,28 +11,28 @@ class AuthController
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($role === 'siswa') {
-                // Siswa Login
-                $nis = $_POST['nis'];
 
-                if (strlen($nis) !== 10) {
-                    $error = "NIS harus 10 karakter";
-                    require_once __DIR__ . '/../views/LoginSiswa.php';
-                    return;
-                }
+                $nis = $_POST['nis'];
+                $email = $_POST['email'];
+                $password = $_POST['password'];
 
                 if (strlen($nis) === 0) {
                     $error = "NIS tidak boleh kosong";
-                    require_once __DIR__ . '/../views/LoginSiswa.php';
-                    return;
-                }
-                
-                $siswa = Siswa::getByNis($nis);
-                if ($siswa) {
-                    $_SESSION['user'] = $siswa;
-                    header('Location: index.php?page=aspirasi');
-                    exit;
+                } elseif (strlen($nis) !== 10) {
+                    $error = "NIS harus 10 karakter";
+                } elseif (strlen($email) === 0) {
+                    $error = "Email tidak boleh kosong";
+                } elseif (strlen($password) < 8) {
+                    $error = "Password minimal 8 karakter";
                 } else {
-                    $error = "NIS tidak ditemukan";
+                    $siswa = Siswa::getByNisAndEmailAndPass($nis, $email, $password);
+                    if ($siswa) {
+                        $_SESSION['user'] = $siswa;
+                        header('Location: index.php?page=aspirasi');
+                        exit;
+                    } else {
+                        $error = "NIS tidak ditemukan";
+                    }
                 }
             } else {
                 // Admin Login
@@ -72,38 +72,48 @@ class AuthController
     public static function registerSiswa()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $nis = $_POST['nis'];
-            $kelas = $_POST['kelas'];
+            $nis = $_POST['nis'] ?? '';
+            $kelas = $_POST['kelas'] ?? '';
+            $username = $_POST['username'] ?? '';
+            $password = $_POST['password'] ?? '';
+            $email = $_POST['email'] ?? '';
 
-            // Check if NIS already exists
-            $existing = Siswa::getByNis($nis);
-            if ($existing) {
-                $error = "NIS sudah terdaftar";
-                require_once __DIR__ . '/../views/RegisterSiswa.php';
-                return;
-            }
 
-            if (strlen($nis) !== 10) {
+            if (strlen($nis) === 0) {
+                $error = "NIS tidak boleh kosong";
+            } elseif (strlen($nis) !== 10) {
                 $error = "NIS harus 10 karakter";
-                require_once __DIR__ . '/../views/RegisterSiswa.php';
-                return;
+            } elseif (strlen($username) === 0) {
+                $error = "Username tidak boleh kosong";
+            } elseif (strlen($email) === 0) {
+                $error = "Email tidak boleh kosong";
+            } elseif (strlen($password) === 0) {
+                $error = "Password tidak boleh kosong";
+            } elseif (strlen($password) < 8) {
+                $error = "Password minimal 8 karakter"; // ✅ tambahan validasi
+            } else {
+
+                $existing = Siswa::getByNis($nis);
+                if ($existing) {
+                    $error = "NIS sudah terdaftar";
+                } else {
+                    $result = Siswa::create($nis, $kelas, $username, $password, $email);
+                    if ($result) {
+                        $success = "Akun siswa berhasil dibuat! Silakan login.";
+                        require_once __DIR__ . '/../views/RegisterSiswa.php';
+                        echo "<script>
+                        setTimeout(function() {
+                            window.location.href = 'index.php?page=login&role=siswa';
+                        }, 2000);
+                    </script>";
+                        return;
+                    } else {
+                        $error = "Gagal membuat akun siswa. Coba lagi.";
+                    }
+                }
             }
 
-            // Create new siswa account
-            $result = Siswa::create($nis, $kelas);
-            if ($result) {
-                $success = "Akun siswa berhasil dibuat! Silakan login.";
-                require_once __DIR__ . '/../views/RegisterSiswa.php';
-                // Auto redirect after 2 seconds
-                echo "<script>
-                    setTimeout(function() {
-                        window.location.href = 'index.php?page=login&role=siswa';
-                    }, 2000);
-                </script>";
-            } else {
-                $error = "Gagal membuat akun siswa. Coba lagi.";
-                require_once __DIR__ . '/../views/RegisterSiswa.php';
-            }
+            require_once __DIR__ . '/../views/RegisterSiswa.php';
         } else {
             require_once __DIR__ . '/../views/RegisterSiswa.php';
         }
@@ -112,62 +122,40 @@ class AuthController
     public static function registerAdmin()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['username'];
-            $password = $_POST['password'];
-            $confirm_password = $_POST['confirm_password'];
+            $username = $_POST['username'] ?? '';
+            $password = $_POST['password'] ?? '';
+            $email = $_POST['email'] ?? '';
+            $confirm_password = $_POST['confirm_password'] ?? '';
 
-            // Validate password match
-            if ($password !== $confirm_password) {
-                $error = "Password tidak cocok";
-                require_once __DIR__ . '/../views/Register.php';
-                return;
-            }
-
-            if (strlen($password) < 8) {
+            if (strlen($username) === 0) {
+                $error = "Username tidak boleh kosong";
+            } elseif (strlen($email) === 0) {
+                $error = "Email tidak boleh kosong";
+            } elseif (strlen($password) < 8) {
                 $error = "Password minimal 8 karakter";
-                require_once __DIR__ . '/../views/Register.php';
-                return;
-            }
-
-            // Check if username already exists
-            $admin = Auth::login($username, $password);
-            if ($admin) {
-                $error = "Username sudah terdaftar";
-                require_once __DIR__ . '/../views/Register.php';
-                return;
-            }
-
-            // Register new admin
-            $result = Auth::register($username, $password);
-            if ($result) {
-                $success = "Akun admin berhasil dibuat! Silakan login.";
-                require_once __DIR__ . '/../views/Register.php';
-                // Auto redirect after 2 seconds
-                echo "<script>
-                    setTimeout(function() {
-                        window.location.href = 'index.php?page=login&role=admin';
-                    }, 2000);
-                </script>";
+            } elseif ($password !== $confirm_password) {
+                $error = "Password tidak cocok";
             } else {
-                $error = "Gagal membuat akun admin. Coba lagi.";
-                require_once __DIR__ . '/../views/Register.php';
+                $existing = Auth::getByEmail($email);
+                if ($existing) {
+                    $error = "Email sudah terdaftar";
+                } else {
+                    $result = Auth::register($username, $password, $email);
+                    if ($result) {
+                        $success = "Akun admin berhasil dibuat! Silakan login.";
+                        require_once __DIR__ . '/../views/Register.php';
+                        echo "<script>
+                        setTimeout(function() {
+                            window.location.href = 'index.php?page=login&role=admin';
+                        }, 2000);
+                    </script>";
+                        return;
+                    } else {
+                        $error = "Gagal membuat akun admin. Coba lagi.";
+                    }
+                }
             }
-        } else {
             require_once __DIR__ . '/../views/Register.php';
-        }
-    }
-
-    public static function register()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['username'];
-            $password = $_POST['password'];
-
-
-
-            Auth::register($username, $password);
-            header('Location: index.php?page=login&role=admin');
-            exit;
         } else {
             require_once __DIR__ . '/../views/Register.php';
         }

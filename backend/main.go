@@ -44,12 +44,13 @@ func setupRouter() *mux.Router {
 	// Auth endpoints
 	router.HandleFunc("/api/auth/login", handlers.Login).Methods("POST")
 	router.HandleFunc("/api/auth/register", handlers.Register).Methods("POST")
-
+	router.HandleFunc("/api/admin/email", handlers.GetAdminByEmail).Methods("GET")
+	router.HandleFunc("/api/admin/{id}", handlers.GetAdminByID).Methods("GET")
 	// Siswa endpoints
+	router.HandleFunc("/api/siswa/one", handlers.GetSiswaByNisAndEmailPassword).Methods("GET")
 	router.HandleFunc("/api/siswa/{nis}", handlers.GetSiswaByNIS).Methods("GET")
 	router.HandleFunc("/api/siswa", handlers.GetAllSiswa).Methods("GET")
 	router.HandleFunc("/api/siswa", handlers.CreateSiswa).Methods("POST")
-
 	// Kategori endpoints
 	router.HandleFunc("/api/kategori", handlers.GetAllKategori).Methods("GET")
 	router.HandleFunc("/api/kategori", handlers.CreateKategori).Methods("POST")

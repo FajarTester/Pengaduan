@@ -135,9 +135,14 @@
 
         <form method="POST" action="index.php?page=register_admin">
             <div class="form-group">
+                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Masukkan email" required>
+            </div>
+
+            <div class="form-group">
                 <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="username" name="username" placeholder="Masukkan username"
-                    required>
+                <input type="text" class="form-control" id="username" name="username"
+                    value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
             </div>
 
             <div class="form-group">

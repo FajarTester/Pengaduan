@@ -118,6 +118,17 @@
                 <input type="text" class="form-control" id="nis" name="nis" placeholder="Masukkan NIS Anda" required>
             </div>
 
+            <div class="form-group">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Masukkan email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password"
+                    placeholder="Masukkan password" required>
+            </div>
+
             <button type="submit" class="btn btn-login">Masuk</button>
         </form>
 

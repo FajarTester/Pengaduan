@@ -39,8 +39,8 @@ func GetAllInputAspirasi(w http.ResponseWriter, r *http.Request) {
 
 func GetInputAspirasiByNIS(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	nis, err := strconv.ParseInt(vars["nis"], 10, 64)
-	if err != nil {
+	nis := vars["nis"]
+	if nis == "" {
 		http.Error(w, "Invalid NIS", http.StatusBadRequest)
 		return
 	}
@@ -48,7 +48,7 @@ func GetInputAspirasiByNIS(w http.ResponseWriter, r *http.Request) {
 	var InputAspirasiList []models.InputAspirasi
 	data, _, err := database.DB.From("input_aspirasi").
 		Select("id_pelaporan, nis, id_kategori, lokasi, ket", "exact", false).
-		Eq("nis", strconv.FormatInt(nis, 10)).
+		Eq("nis", nis). // ✅ langsung string
 		Execute()
 	if err != nil {
 		http.Error(w, "Gagal parsing data", http.StatusInternalServerError)
@@ -99,27 +99,22 @@ func GetInputAspirasiByID(w http.ResponseWriter, r *http.Request) {
 		Data:    InputAspirasi,
 	})
 }
-
 func CreateInputAspirasi(w http.ResponseWriter, r *http.Request) {
 	var InputAspirasi models.InputAspirasi
 
-	err := json.NewDecoder(r.Body).Decode(&InputAspirasi)
-
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&InputAspirasi); err != nil {
 		log.Printf("Error Decode JSON: %v", err)
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 
-	// Log request body
 	requestBodyJSON, _ := json.Marshal(InputAspirasi)
 	log.Printf("[POST] CreateInputAspirasi - Request Body: %s", string(requestBodyJSON))
 
-	// Check if duplicate exists (same nis, id_kategori, lokasi, ket)
 	var existingData []models.InputAspirasi
 	checkData, _, err := database.DB.From("input_aspirasi").
 		Select("id_pelaporan, nis, id_kategori, lokasi, ket", "exact", false).
-		Eq("nis", strconv.FormatInt(InputAspirasi.NIS, 10)).
+		Eq("nis", InputAspirasi.NIS).
 		Eq("id_kategori", strconv.Itoa(InputAspirasi.IDKategori)).
 		Eq("lokasi", InputAspirasi.Lokasi).
 		Eq("ket", InputAspirasi.Ket).
@@ -143,19 +138,19 @@ func CreateInputAspirasi(w http.ResponseWriter, r *http.Request) {
 	var result []models.InputAspirasi
 	data, _, err := database.DB.From("input_aspirasi").
 		Insert(map[string]interface{}{
-			"nis":         InputAspirasi.NIS,
+			"nis":         InputAspirasi.NIS, // ✅ langsung string
 			"id_kategori": InputAspirasi.IDKategori,
 			"lokasi":      InputAspirasi.Lokasi,
 			"ket":         InputAspirasi.Ket,
 		}, false, "", "", "").
 		Execute()
 	if err != nil {
-		http.Error(w, "Gagal parsing data", http.StatusInternalServerError)
+		http.Error(w, "Gagal menyimpan data", http.StatusInternalServerError)
 		return
 	}
 
 	if err := json.Unmarshal(data, &result); err != nil {
-		http.Error(w, "Gagal parsing data", http.StatusInternalServerError)
+		http.Error(w, "Gagal parsing response", http.StatusInternalServerError)
 		return
 	}
 

@@ -2,17 +2,20 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"pengaduan/database"
 	"pengaduan/models"
 
+	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // Login handles admin login
 func Login(w http.ResponseWriter, r *http.Request) {
 	var admin models.Admin
+
 	err := json.NewDecoder(r.Body).Decode(&admin)
 	if err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
@@ -46,8 +49,71 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		Success: true,
 		Message: "Login successful",
 		Data: models.AdminResponse{
-			Username: admin.Username,
+			Username: storedAdmin.Username,
 		},
+	})
+}
+
+func GetAdminByEmail(w http.ResponseWriter, r *http.Request) {
+	email := r.URL.Query().Get("email")
+	if email == "" {
+		http.Error(w, "Invalid email", http.StatusBadRequest)
+		return
+	}
+
+	var admin models.Admin
+	data, _, err := database.DB.From("admin").
+		Select("email, username, password", "exact", false).
+		Eq("email", email).
+		Single().
+		Execute()
+	if err != nil {
+		http.Error(w, "Admin not found", http.StatusNotFound)
+		return
+	}
+
+	if err := json.Unmarshal(data, &admin); err != nil {
+		http.Error(w, "Gagal parsing data", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(models.Response{
+		Success: true,
+		Message: "Admin found",
+		Data:    admin,
+	})
+}
+
+func GetAdminByID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	var admin models.Admin
+	data, _, err := database.DB.From("admin").
+		Select("email, username, password", "exact", false).
+		Eq("id", id).
+		Single().
+		Execute()
+	if err != nil {
+		http.Error(w, "Admin not found", http.StatusNotFound)
+		return
+	}
+
+	if err := json.Unmarshal(data, &admin); err != nil {
+		http.Error(w, "Gagal parsing data", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(models.Response{
+		Success: true,
+		Message: "Admin found",
+		Data:    admin,
 	})
 }
 
@@ -60,32 +126,32 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("[POST] Register - Attempt for Email: %s", admin.Email)
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(admin.Password), bcrypt.DefaultCost)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
-
-	var result []models.Admin
-	data, _, err := database.DB.From("admin").
+	_, _, err = database.DB.From("admin").
 		Insert(map[string]interface{}{
+			"email":    admin.Email,
 			"username": admin.Username,
 			"password": string(hashedPassword),
-		}, false, "", "", "").
+		}, false, "", "representation", "").
 		Execute()
-	if err != nil {
-		http.Error(w, "Username already exists", http.StatusConflict)
-		return
-	}
 
-	if err := json.Unmarshal(data, &result); err != nil {
-		http.Error(w, "Gagal parsing data", http.StatusInternalServerError)
+	if err != nil {
+
+		log.Printf("Database Error: %v", err)
+		http.Error(w, "Registration failed (email might exist)", http.StatusConflict)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(models.Response{
-		Success: true,
-		Message: "Registration successful",
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"message": "Registration successful",
 	})
 }
