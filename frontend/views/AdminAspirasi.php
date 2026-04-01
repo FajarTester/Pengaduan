@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 
@@ -1246,8 +1245,8 @@
                 <div class="nav-right">
                     <div class="admin-chip">
                         <div class="admin-avatar"><i class="bi bi-shield-fill"></i></div>
-                        <span class="admin-name">
-                            <?php echo htmlspecialchars($_SESSION['admin']['username'] ?? 'Guest'); ?>
+                        <span
+                            class="admin-name"><?php echo htmlspecialchars($_SESSION['admin']['username'] ?? 'Admin'); ?>
                         </span>
                     </div>
                     <a href="index.php?page=logout" class="btn-logout">
