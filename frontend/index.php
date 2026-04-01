@@ -1,5 +1,11 @@
 <?php
+
+$timeout = 86400;
+ini_set('session.gc_maxlifetime', $timeout);
+session_set_cookie_params($timeout);
+
 session_start();
+
 require_once 'plugins/api.php';
 
 $page = $_GET['page'] ?? 'login';
@@ -25,7 +31,6 @@ switch ($page) {
 
     case 'aspirasi':
         require_once 'controllers/Aspirasi.php';
-
         if ($action === 'create') {
             AspirasiController::create();
         } elseif ($action === 'edit') {
@@ -39,6 +44,12 @@ switch ($page) {
 
     case 'admin':
     case 'admin_review':
+
+        if (!isset($_SESSION['admin']) && isset($_COOKIE['remember_admin'])) {
+            $user_from_cookie = base64_decode($_COOKIE['remember_admin']);
+            $_SESSION['admin'] = ['username' => $user_from_cookie];
+        }
+
         if (!isset($_SESSION['admin'])) {
             header('Location: index.php?page=login');
             exit;
